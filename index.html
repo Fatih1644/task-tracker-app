@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 İş Takip Uygulaması</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #e0e0e0;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            border: 2px solid transparent;
+        }
+
+        .stat-box.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: white;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Tasks List */
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-card {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .task-description {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .priority-high { background: #FF3B30; }
+        .priority-medium { background: #FF9500; }
+        .priority-low { background: #34C759; }
+
+        .status-todo { background: #FF9500; }
+        .status-progress { background: #007AFF; }
+        .status-done { background: #34C759; }
+
+        .task-date {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .task-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .btn-success {
+            background: #34C759;
+            color: white;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        /* Form */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: Arial;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .info-box {
+            background: #e8f4fd;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .info-box strong {
+            color: #667eea;
+        }
+
+        /* Profile */
+        .profile-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #34C759;
+            transition: width 0.3s;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📱 İş Takip</h1>
+            <p>Görevlerinizi kolayca yönetin</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tasks')">📋 Görevler</button>
+            <button class="tab-btn" onclick="switchTab('add')">➕ Ekle</button>
+            <button class="tab-btn" onclick="switchTab('profile')">👤 Profil</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- TASKS TAB -->
+            <div id="tasks" class="tab-content active">
+                <div class="stats-container" id="statsContainer"></div>
+                <div class="tasks-list" id="tasksList"></div>
+            </div>
+
+            <!-- ADD TASK TAB -->
+            <div id="add" class="tab-content">
+                <h2 class="section-title">Yeni Görev Ekle</h2>
+                <form onsubmit="addTask(event)">
+                    <div class="form-group">
+                        <label class="form-label">Görev Başlığı *</label>
+                        <input type="text" id="taskTitle" class="form-input" placeholder="Yapılacak işi girin" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Açıklama</label>
+                        <textarea id="taskDesc" class="form-input" placeholder="Görev hakkında detay bilgi"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Öncelik</label>
+                        <select id="taskPriority" class="form-input">
+                            <option value="Düşük">Düşük</option>
+                            <option value="Orta" selected>Orta</option>
+                            <option value="Yüksek">Yüksek</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Bitiş Tarihi (Opsiyonel)</label>
+                        <input type="text" id="taskDate" class="form-input" placeholder="GG.AA.YYYY (örn: 15.06.2026)">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary full-width">➕ GÖREV EKLE</button>
+                </form>
+
+                <div class="info-box">
+                    <strong>💡 İpucu:</strong><br>
+                    Görev başlığını girdikten sonra "GÖREV EKLE" butonuna tıklayın. Görev otomatik olarak "Yapılacak" durumuna eklenir.
+                </div>
+            </div>
+
+            <!-- PROFILE TAB -->
+            <div id="profile" class="tab-content">
+                <div class="profile-section">
+                    <h2 class="section-title">📊 İstatistikler</h2>
+                    <div class="stats-container" id="profileStats"></div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                            <span>Tamamlama Oranı</span>
+                            <span id="completionPercent" style="color: #667eea;">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h2 class="section-title">👤 Profil Bilgileri</h2>
+                    <div id="profileView"></div>
+                </div>
+
+                <div class="profile-section">
+                    <h2 class="section-title">⚙️ Ayarlar</h2>
+                    <button class="btn btn-danger full-width" onclick="clearAllData()">🗑️ Tüm Verileri Sil</button>
+                </div>
+
+                <div class="footer">
+                    <p>İş Takip Uygulaması v1.0</p>
+                    <p>© 2026 Tüm Hakları Saklıdır</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'taskTrackerData';
+        const PROFILE_KEY = 'taskTrackerProfile';
+
+        let tasks = [];
+        let profile = {
+            name: 'Kullanıcı',
+            email: 'kullanici@example.com',
+            phone: '',
+        };
+        let currentFilter = 'all';
+        let editingProfile = false;
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            renderTasks();
+            renderProfile();
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tab === 'tasks') renderTasks();
+            if (tab === 'profile') renderProfile();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            const savedProfile = localStorage.getItem(PROFILE_KEY);
+            if (saved) tasks = JSON.parse(saved);
+            if (savedProfile) profile = JSON.parse(savedProfile);
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+            localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+        }
+
+        function addTask(e) {
+            e.preventDefault();
+            const title = document.getElementById('taskTitle').value;
+            if (!title.trim()) {
+                alert('Lütfen görev başlığını girin');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                title: title.trim(),
+                description: document.getElementById('taskDesc').value.trim(),
+                priority: document.getElementById('taskPriority').value,
+                dueDate: document.getElementById('taskDate').value.trim(),
+                status: 'Yapılacak',
+                createdAt: new Date().toISOString(),
+            };
+
+            tasks.unshift(task);
+            saveData();
+            alert('Görev başarıyla eklendi!');
+            e.target.reset();
+            document.querySelectorAll('.tab-btn')[0].click();
+        }
+
+        function deleteTask(id) {
+            if (confirm('Bu görevi silmek istediğinizden emin misiniz?')) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveData();
+                renderTasks();
+                alert('Görev silindi');
+            }
+        }
+
+        function updateTaskStatus(id) {
+            const statuses = ['Yapılacak', 'Yapılıyor', 'Tamamlandı'];
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                const idx = statuses.indexOf(task.status);
+                task.status = statuses[(idx + 1) % statuses.length];
+                saveData();
+                renderTasks();
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Yapılacak': return 'status-todo';
+                case 'Yapılıyor': return 'status-progress';
+                case 'Tamamlandı': return 'status-done';
+                default: return '';
+            }
+        }
+
+        function getPriorityClass(priority) {
+            switch (priority) {
+                case 'Yüksek': return 'priority-high';
+                case 'Orta': return 'priority-medium';
+                case 'Düşük': return 'priority-low';
+                default: return '';
+            }
+        }
+
+        function renderTasks() {
+            const filtered = currentFilter === 'all' 
+                ? tasks 
+                : tasks.filter(t => t.status === currentFilter);
+
+            const stats = {
+                all: tasks.length,
+                todo: tasks.filter(t => t.status === 'Yapılacak').length,
+                progress: tasks.filter(t => t.status === 'Yapılıyor').length,
+                done: tasks.filter(t => t.status === 'Tamamlandı').length,
+            };
+
+            let statsHTML = `
+                <button class="stat-box ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">
+                    <div class="stat-number">${stats.all}</div>
+                    <div class="stat-label">Tümü</div>
+                </button>
+                <button class="stat-box ${currentFilter === 'Yapılacak' ? 'active' : ''}" onclick="setFilter('Yapılacak')">
+                    <div class="stat-number">${stats.todo}</div>
+                    <div class="stat-label">Yapılacak</div>
+                </button>
+                <button class="stat-box ${currentFilter === 'Yapılıyor' ? 'active' : ''}" onclick="setFilter('Yapılıyor')">
+                    <div class="stat-number">${stats.progress}</div>
+                    <div class="stat-label">Yapılıyor</div>
+                </button>
+                <button class="stat-box ${currentFilter === 'Tamamlandı' ? 'active' : ''}" onclick="setFilter('Tamamlandı')">
+                    <div class="stat-number">${stats.done}</div>
+                    <div class="stat-label">Tamamlandı</div>
+                </button>
+            `;
+
+            document.getElementById('statsContainer').innerHTML = statsHTML;
+
+            let tasksHTML = filtered.length > 0 ? filtered.map(task => `
+                <div class="task-card">
+                    <div class="task-title">${task.title}</div>
+                    ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                    <div class="task-meta">
+                        <span class="badge ${getPriorityClass(task.priority)}">${task.priority}</span>
+                        <span class="badge ${getStatusClass(task.status)}">${task.status}</span>
+                    </div>
+                    ${task.dueDate ? `<div class="task-date">📅 ${task.dueDate}</div>` : ''}
+                    <div class="task-buttons">
+                        <button class="btn btn-primary" onclick="updateTaskStatus(${task.id})">Durum Değiştir</button>
+                        <button class="btn btn-danger" onclick="deleteTask(${task.id})">Sil</button>
+                    </div>
+                </div>
+            `).join('') : '<div class="empty-message"><p>Görev yok</p><p style="font-size: 11px; margin-top: 5px;">Yeni görev eklemek için Ekle sekmesine tıklayın</p></div>';
+
+            document.getElementById('tasksList').innerHTML = tasksHTML;
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            renderTasks();
+        }
+
+        function renderProfile() {
+            const stats = {
+                all: tasks.length,
+                done: tasks.filter(t => t.status === 'Tamamlandı').length,
+                progress: tasks.filter(t => t.status === 'Yapılıyor').length,
+                todo: tasks.filter(t => t.status === 'Yapılacak').length,
+            };
+
+            const completion = stats.all > 0 ? Math.round((stats.done / stats.all) * 100) : 0;
+
+            let statsHTML = `
+                <div class="stat-box">
+                    <div class="stat-number">${stats.all}</div>
+                    <div class="stat-label">Toplam Görev</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" style="color: #34C759;">${stats.done}</div>
+                    <div class="stat-label">Tamamlandı</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" style="color: #007AFF;">${stats.progress}</div>
+                    <div class="stat-label">Yapılıyor</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" style="color: #FF9500;">${stats.todo}</div>
+                    <div class="stat-label">Yapılacak</div>
+                </div>
+            `;
+            document.getElementById('profileStats').innerHTML = statsHTML;
+            document.getElementById('progressFill').style.width = completion + '%';
+            document.getElementById('completionPercent').textContent = completion + '%';
+
+            let profileHTML = editingProfile ? `
+                <div class="form-group">
+                    <label class="form-label">Ad Soyad</label>
+                    <input type="text" id="editName" class="form-input" value="${profile.name}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" id="editEmail" class="form-input" value="${profile.email}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefon</label>
+                    <input type="tel" id="editPhone" class="form-input" value="${profile.phone}">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-success full-width" onclick="saveProfile()">✓ Kaydet</button>
+                    <button class="btn btn-danger full-width" onclick="cancelEdit()">✕ İptal</button>
+                </div>
+            ` : `
+                <div class="info-row">
+                    <span class="info-label">Ad Soyad:</span>
+                    <span>${profile.name}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">E-posta:</span>
+                    <span>${profile.email}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telefon:</span>
+                    <span>${profile.phone || '-'}</span>
+                </div>
+                <button class="btn btn-primary full-width" style="margin-top: 15px;" onclick="startEdit()">✎ Düzenle</button>
+            `;
+
+            document.getElementById('profileView').innerHTML = profileHTML;
+        }
+
+        function startEdit() {
+            editingProfile = true;
+            renderProfile();
+        }
+
+        function cancelEdit() {
+            editingProfile = false;
+            renderProfile();
+        }
+
+        function saveProfile() {
+            profile.name = document.getElementById('editName').value;
+            profile.email = document.getElementById('editEmail').value;
+            profile.phone = document.getElementById('editPhone').value;
+            saveData();
+            editingProfile = false;
+            renderProfile();
+            alert('Profil güncellendi!');
+        }
+
+        function clearAllData() {
+            if (confirm('Tüm verileri silmek istediğinizden emin misiniz?')) {
+                tasks = [];
+                profile = { name: 'Kullanıcı', email: 'kullanici@example.com', phone: '' };
+                saveData();
+                renderTasks();
+                renderProfile();
+                alert('Tüm veriler silindi');
+            }
+        }
+    </script>
+</body>
+</html>
